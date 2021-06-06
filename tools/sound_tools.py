@@ -25,6 +25,9 @@ def load_sound_file(wav_name, mono=False, channel=0):
         sampling_rate (float) - sampling rate detected in the file
     """
     multi_channel_data, sampling_rate = librosa.load(wav_name, sr=None, mono=mono)
+    if len(multi_channel_data.shape) == 1:
+        
+        return multi_channel_data, sampling_rate
     signal = np.array(multi_channel_data)[channel, :]
     
     return signal, sampling_rate

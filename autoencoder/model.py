@@ -49,20 +49,21 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--n_mels', type=int, default=64)
     parser.add_argument('--frame', type=int, default=5)
     parser.add_argument('--learning-rate', type=float, default=0.01)
     parser.add_argument('--batch-size', type=int, default=128)
-    parser.add_argument('--gpu-count', type=int, default=os.environ['SM_NUM_GPUS'])
-    parser.add_argument('--model-dir', type=str, default=os.environ['SM_MODEL_DIR'])
-    parser.add_argument('--training', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
+    #parser.add_argument('--gpu-count', type=int, default=os.environ['SM_NUM_GPUS'])
+    #parser.add_argument('--gpu-count', type=int, default=1)
+    #parser.add_argument('--model-dir', type=str, default='./model')
+    #parser.add_argument('--training', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
 
     args, _ = parser.parse_known_args()
     
     return args
     
-def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count):
+def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name):
     """
     Main training function.
     
@@ -108,23 +109,36 @@ def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_co
     )
     
     # Save the trained model:
-    os.makedirs(os.path.join(model_dir, 'model/1'), exist_ok=True)
-    model.save(os.path.join(model_dir, 'model/1'))
+    os.makedirs(os.path.join(model_dir, save_name), exist_ok=True)
+    model.save(os.path.join(model_dir, save_name))
+    
+    return model
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+def start_train(training_dir='data/interim/',
+                model_dir='model/',
+                epochs=30,
+                n_mels=64,
+                frame=5,
+                batch_size=128,
+                lr=0.01,
+                gpu_count=1,
+                save_name='AE'
+               ):
     # Initialization:
     tf.random.set_seed(42)
     
     # Parsing command line arguments:
-    args = parse_arguments()
-    epochs       = args.epochs
-    n_mels       = args.n_mels
-    frame        = args.frame
-    lr           = args.learning_rate
-    batch_size   = args.batch_size
-    gpu_count    = args.gpu_count
-    model_dir    = args.model_dir
-    training_dir = args.training
+    #args = parse_arguments()
+    #epochs       = args.epochs
+    #n_mels       = args.n_mels
+    #frame        = args.frame
+    #lr           = args.learning_rate
+    #batch_size   = args.batch_size
+    #gpu_count    = args.gpu_count
+    #model_dir    = args.model_dir
+    #training_dir = args.training
     
     # Launch the training:
-    train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count)
+    model = train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name)
+    return model
