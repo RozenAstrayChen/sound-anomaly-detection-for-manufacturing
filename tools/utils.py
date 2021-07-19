@@ -59,6 +59,7 @@ def build_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
     
     # Loops through the directories to build a normal and an abnormal files list:
     for root, dirs, files in os.walk(top = os.path.join(root_dir)):
+        print('search path: %s' % root)
         for name in files:
             current_dir_type = root.split('/')[-1]
             if current_dir_type == abnormal_dir:

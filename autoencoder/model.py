@@ -10,11 +10,11 @@ import tensorflow.keras as keras
 from tensorflow.keras import backend as K
 from tensorflow.keras import Input
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, UpSampling2D
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.utils import multi_gpu_model
+#from tensorflow.keras.utils import multi_gpu_model
 
-def autoencoder_model(input_dims):
+def autoencoder_model(input_dims, type=0):
     """
     Defines a Keras model for performing the anomaly detection. 
     This model is based on a simple dense autoencoder.
@@ -27,17 +27,57 @@ def autoencoder_model(input_dims):
     ======
         Model (tf.keras.models.Model) - the Keras model of our autoencoder
     """
+    if type == 0:
+        # Autoencoder definition:
+        inputLayer = Input(shape=(input_dims,))
+        h = Dense(64, activation="relu")(inputLayer)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(8, activation="relu")(h)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(input_dims, activation=None)(h)
     
-    # Autoencoder definition:
-    inputLayer = Input(shape=(input_dims,))
-    h = Dense(64, activation="relu")(inputLayer)
-    h = Dense(64, activation="relu")(h)
-    h = Dense(8, activation="relu")(h)
-    h = Dense(64, activation="relu")(h)
-    h = Dense(64, activation="relu")(h)
-    h = Dense(input_dims, activation=None)(h)
+    if type == 1:
+        inputLayer = Input(shape=(input_dims,))
+        h = Dense(64, activation="relu")(inputLayer)
+        h = Dense(32, activation="relu")(h)
+        h = Dense(16, activation="relu")(h)
+        h = Dense(32, activation="relu")(h)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(input_dims, activation=None)(h)
+    if type == 2:
+        inputLayer = Input(shape=(input_dims,))
+        h = Dense(256, activation="relu")(inputLayer)
+        h = Dense(128, activation="relu")(h)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(32, activation="relu")(h)
+        
+        h = Dense(32, activation="relu")(h)
+        h = Dense(64, activation="relu")(h)
+        h = Dense(128, activation="relu")(h)
+        h = Dense(256, activation="relu")(h)
+        h = Dense(input_dims, activation=None)(h)
+    if type == 3:
+        # Encoder
+        inputLayer = Input(shape=(input_dims,))
+        h = Conv2D(16, (3, 3), activation='relu', padding='same')(inputLayer)
+        h = MaxPooling2D((2, 2), padding='same')(h)
+        h = Conv2D(8, (3, 3), activation='relu', padding='same')(h)
+        h = MaxPooling2D((2, 2), padding='same')(h)
+        h = Conv2D(8, (3, 3), activation='relu', padding='same')(h)
+        encoded = layers.MaxPooling2D((2, 2), padding='same')(h)
+        # Decoder
+        h = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+        h = UpSampling2D((2, 2))(h)
+        h = Conv2D(8, (3, 3), activation='relu', padding='same')(h)
+        h = UpSampling2D((2, 2))(h)
+        h = Conv2D(16, (3, 3), activation='relu')(h)
+        h = UpSampling2D((2, 2))(h)
+        h = Dense(input_dims, activation=None)(h)
+
 
     return Model(inputs=inputLayer, outputs=h)
+    
 
 def parse_arguments():
     """
@@ -63,7 +103,7 @@ def parse_arguments():
     
     return args
     
-def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name):
+def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name, model_type):
     """
     Main training function.
     
@@ -84,10 +124,10 @@ def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_co
         train_data = pickle.load(f) 
     
     # Builds the model:
-    model = autoencoder_model(n_mels * frame)
+    model = autoencoder_model(n_mels * frame, model_type)
     print(model.summary())
-    if gpu_count > 1:
-        model = multi_gpu_model(model, gpus=gpu_count)
+    '''if gpu_count > 1:
+        model = multi_gpu_model(model, gpus=gpu_count)'''
         
     # Model preparation:
     model.compile(
@@ -123,7 +163,8 @@ def start_train(training_dir='data/interim/',
                 batch_size=128,
                 lr=0.01,
                 gpu_count=1,
-                save_name='AE'
+                save_name='AE',
+                model_type=0
                ):
     # Initialization:
     tf.random.set_seed(42)
@@ -140,5 +181,5 @@ def start_train(training_dir='data/interim/',
     #training_dir = args.training
     
     # Launch the training:
-    model = train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name)
+    model = train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name, model_type)
     return model

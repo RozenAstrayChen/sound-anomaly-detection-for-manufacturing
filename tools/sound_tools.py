@@ -84,24 +84,24 @@ def extract_signal_features(signal, sr, n_mels=64, frames=5, n_fft=1024, hop_len
     )
     
     # Convert to decibel (log scale for amplitude):
-    log_mel_spectrogram = librosa.power_to_db(mel_spectrogram, ref=np.max)
+    log_mel_spectrogram = librosa.power_to_db(mel_spectrogram, ref=np.max) # shape [n_mels, 345]
     
     # Generate an array of vectors as features for the current signal:
-    features_vector_size = log_mel_spectrogram.shape[1] - frames + 1
+    features_vector_size = log_mel_spectrogram.shape[1] - frames + 1 # shape: 345-5+1
     
     # Skips short signals:
-    dims = frames * n_mels
+    dims = frames * n_mels # shape: 64*5=320
     if features_vector_size < 1:
         return np.empty((0, dims), np.float32)
     
     # Build N sliding windows (=frames) and concatenate them to build a feature vector:
-    features = np.zeros((features_vector_size, dims), np.float32)
+    features = np.zeros((features_vector_size, dims), np.float32) # shape: [341, 320]
     for t in range(frames):
         features[:, n_mels * t: n_mels * (t + 1)] = log_mel_spectrogram[:, t:t + features_vector_size].T
         
     return features
 
-def generate_dataset(files_list, n_mels=64, frames=5, n_fft=1024, hop_length=512):
+def generate_dataset(files_list, n_mels=64, frames=5, n_fft=1024, hop_length=512, cnn_type=0):
     """
     Takes a list for WAV files as an input and generate a numpy array with
     the extracted features.
@@ -136,11 +136,15 @@ def generate_dataset(files_list, n_mels=64, frames=5, n_fft=1024, hop_length=512
             n_fft=n_fft, 
             hop_length=hop_length
         )
-        
-        if index == 0:
-            dataset = np.zeros((features.shape[0] * len(files_list), dims), np.float32)
-            
-        dataset[features.shape[0] * index : features.shape[0] * (index + 1), :] = features
+        if cnn_type == 0:
+            if index == 0:
+                dataset = np.zeros((features.shape[0] * len(files_list), dims), np.float32)
+            # 341, 320
+            dataset[features.shape[0] * index : features.shape[0] * (index + 1), :] = features
+        else:
+            if index == 0:
+                dataset = np.zeros(len(files_list), feature.shape[0] ,dim)
+            datset[index] = feature
 
     return dataset
 
