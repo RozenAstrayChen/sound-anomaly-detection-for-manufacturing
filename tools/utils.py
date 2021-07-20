@@ -9,6 +9,32 @@ import pandas as pd
 import random
 import seaborn as sns
 from tqdm import tqdm
+import platform
+
+
+def parse_arguments():
+    """
+    Parse the command line arguments passed when running this training script
+    
+    RETURN
+    ======
+        args (ArgumentParser) - an ArgumentParser instance command line arguments
+    """
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--epochs', type=int, default=30)
+    parser.add_argument('--n_mels', type=int, default=64)
+    parser.add_argument('--frame', type=int, default=5)
+    parser.add_argument('--learning-rate', type=float, default=0.01)
+    parser.add_argument('--batch-size', type=int, default=128)
+    #parser.add_argument('--gpu-count', type=int, default=os.environ['SM_NUM_GPUS'])
+    #parser.add_argument('--gpu-count', type=int, default=1)
+    #parser.add_argument('--model-dir', type=str, default='./model')
+    #parser.add_argument('--training', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
+
+    args, _ = parser.parse_known_args()
+    
+    return args
 
 def md5(fname):
     """
@@ -56,12 +82,20 @@ def build_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
     """
     normal_files = []
     abnormal_files = []
+
+    split_char = '/'
+    print(platform.system().lower())
+    if platform.system().lower() == 'windows':
+        print('detect windows system')
+        split_char = '\\'
+        split_char = split_char[0]
+
     
     # Loops through the directories to build a normal and an abnormal files list:
     for root, dirs, files in os.walk(top = os.path.join(root_dir)):
         print('search path: %s' % root)
         for name in files:
-            current_dir_type = root.split('/')[-1]
+            current_dir_type = root.split(split_char)[-1]
             if current_dir_type == abnormal_dir:
                 abnormal_files.append(os.path.join(root, name))
             if current_dir_type == normal_dir:
@@ -101,11 +135,18 @@ def generate_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
     """
     normal_files = []
     abnormal_files = []
-    
+
+    split_char = '/'
+    print(platform.system().lower())
+    if platform.system().lower() == 'windows':
+        print('detect windows system')
+        split_char = '\\'
+        split_char = split_char[0]
+
     # Loops through the directories to build a normal and an abnormal files list:
     for root, dirs, files in os.walk(top = os.path.join(root_dir)):
         for name in files:
-            current_dir_type = root.split('/')[-1]
+            current_dir_type = root.split(split_char)[-1]
             if current_dir_type == abnormal_dir:
                 abnormal_files.append(os.path.join(root, name))
             if current_dir_type == normal_dir:

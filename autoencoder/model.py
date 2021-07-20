@@ -79,29 +79,7 @@ def autoencoder_model(input_dims, type=0):
     return Model(inputs=inputLayer, outputs=h)
     
 
-def parse_arguments():
-    """
-    Parse the command line arguments passed when running this training script
-    
-    RETURN
-    ======
-        args (ArgumentParser) - an ArgumentParser instance command line arguments
-    """
-    parser = argparse.ArgumentParser()
-    
-    parser.add_argument('--epochs', type=int, default=30)
-    parser.add_argument('--n_mels', type=int, default=64)
-    parser.add_argument('--frame', type=int, default=5)
-    parser.add_argument('--learning-rate', type=float, default=0.01)
-    parser.add_argument('--batch-size', type=int, default=128)
-    #parser.add_argument('--gpu-count', type=int, default=os.environ['SM_NUM_GPUS'])
-    #parser.add_argument('--gpu-count', type=int, default=1)
-    #parser.add_argument('--model-dir', type=str, default='./model')
-    #parser.add_argument('--training', type=str, default=os.environ['SM_CHANNEL_TRAINING'])
 
-    args, _ = parser.parse_known_args()
-    
-    return args
     
 def train(training_dir, model_dir, n_mels, frame, lr, batch_size, epochs, gpu_count, save_name, model_type):
     """
