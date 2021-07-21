@@ -58,7 +58,7 @@ def md5(fname):
             
     return hash_md5.hexdigest()
 
-def build_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
+def build_files_list(root_dir, abnormal_dir=['abnormal'], normal_dir=['normal'], type='win_bug'):
     """
     Generate a list of files located in the root dir.
     
@@ -87,8 +87,9 @@ def build_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
     print(platform.system().lower())
     if platform.system().lower() == 'windows':
         print('detect windows system')
-        split_char = '\\'
-        split_char = split_char[0]
+        if type != 'win_bug':
+            split_char = '\\'
+            split_char = split_char[0]
 
     
     # Loops through the directories to build a normal and an abnormal files list:
@@ -96,15 +97,15 @@ def build_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
         print('search path: %s' % root)
         for name in files:
             current_dir_type = root.split(split_char)[-1]
-            if current_dir_type == abnormal_dir:
+            if current_dir_type in abnormal_dir:
                 abnormal_files.append(os.path.join(root, name))
-            if current_dir_type == normal_dir:
+            if current_dir_type in normal_dir:
                 normal_files.append(os.path.join(root, name))
                 
     return normal_files, abnormal_files
 
 
-def generate_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
+def generate_files_list(root_dir, abnormal_dir=['abnormal'], normal_dir=['normal'], type='win_bug'):
     """
     Generate a list of files located in the root dir and sort test and train 
     files and labels to be used by an autoencoder. This means that the train 
@@ -140,16 +141,17 @@ def generate_files_list(root_dir, abnormal_dir='abnormal', normal_dir='normal'):
     print(platform.system().lower())
     if platform.system().lower() == 'windows':
         print('detect windows system')
-        split_char = '\\'
-        split_char = split_char[0]
+        if type != 'win_bug':
+            split_char = '\\'
+            split_char = split_char[0]
 
     # Loops through the directories to build a normal and an abnormal files list:
     for root, dirs, files in os.walk(top = os.path.join(root_dir)):
         for name in files:
             current_dir_type = root.split(split_char)[-1]
-            if current_dir_type == abnormal_dir:
+            if current_dir_type in abnormal_dir:
                 abnormal_files.append(os.path.join(root, name))
-            if current_dir_type == normal_dir:
+            if current_dir_type in normal_dir:
                 normal_files.append(os.path.join(root, name))
 
     # Shuffle the normal files in place:

@@ -30,9 +30,10 @@ class Data_work():
         self.PROCESSED_DATA = os.path.join('data', 'processed')
 
     def build_dataset(self):
-        normal_files, abnormal_files = utils.build_files_list(root_dir=os.path.join(self.root_dir), abnormal_dir='NG',
-                                                              normal_dir='OK')
+        normal_files, abnormal_files = utils.build_files_list(root_dir=os.path.join(self.root_dir), abnormal_dir=['NG1', 'NG2'],
+                                                              normal_dir=['OK1', 'OK2', 'OK3', 'OK4', 'OK5'])
         normal_y = np.zeros(len(normal_files))
+        print('search all file, noamrl data has %d, abnormal data has %d' % (len(normal_files), len(abnormal_files)))
         # split train data to 80%, 20%
         train_files, test_normal_files, train_labels, test_normal_labels = train_test_split(normal_files, normal_y,
                                                                                             train_size=0.8,

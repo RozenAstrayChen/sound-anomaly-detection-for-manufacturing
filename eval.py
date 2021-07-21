@@ -184,7 +184,7 @@ class Eval_method():
 def eval_test():
     Eval = Eval_method()
     Eval.load_model()
-    Eval.load_eval_data()
+    Eval.load_eval_data(path="Fan/")
 
     reconstruction_errors = Eval.pred_reconstruction()
     threshold_range = Eval.reconstruction_error_analysis(reconstruction_errors)

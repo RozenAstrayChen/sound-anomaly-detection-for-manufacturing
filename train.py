@@ -91,7 +91,7 @@ class Train_process():
 
             self.save_model(self.model)
 
-def start_train(data_path="audio_data/train_20200925", training_dir='data/interim/', model_dir='model/',
+def start_train(data_path="Fan/", model_dir='model/',
                 n_mels=64, frames=5, n_fft=1024, hop_length=512, power=2,
                 epochs=2000, batch_size=128, lr=0.001,
                 save_name='AE', model_type=1
